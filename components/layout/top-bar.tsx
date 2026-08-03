@@ -4,6 +4,7 @@ import { UserButton } from "@clerk/nextjs";
 import { Bell, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
@@ -28,7 +29,9 @@ export function TopBar() {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { openPanel } = useDashboard();
-  const isDark = resolvedTheme === "dark";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted && resolvedTheme === "dark";
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[color:var(--paper)]/88 backdrop-blur-xl">

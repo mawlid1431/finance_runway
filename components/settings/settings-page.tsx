@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
 import { PageHeader } from "@/components/layout/page-header";
@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 export function SettingsPage() {
   const { resolvedTheme, setTheme } = useTheme();
   const { openPanel } = useDashboard();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [ticketAlerts, setTicketAlerts] = useState(true);
   const [revenueAlerts, setRevenueAlerts] = useState(true);
   const [testingMic, setTestingMic] = useState(false);
@@ -71,7 +73,7 @@ export function SettingsPage() {
                 data-avatar-target={`settings-theme-${theme}`}
                 className={cn(
                   "rounded-xl border px-4 py-3 text-sm font-semibold capitalize",
-                  resolvedTheme === theme
+                  mounted && resolvedTheme === theme
                     ? "border-[var(--ink)] bg-[var(--ink)] text-[var(--paper)]"
                     : "border-[var(--line)]",
                 )}

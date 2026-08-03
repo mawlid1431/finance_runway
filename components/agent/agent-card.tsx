@@ -54,9 +54,14 @@ export function AgentCard({
 
   function showCallError(callError: Error) {
     console.error(callError);
-    setError(
-      "The call could not start. Check the local Runway setup and try again.",
-    );
+    const msg = callError.message ?? "";
+    if (msg.includes("credits")) {
+      setError("Runway credits are empty — top up at dev.runwayml.com to start a call.");
+    } else if (msg.includes("401") || msg.includes("403")) {
+      setError("Invalid Runway API key. Check RUNWAYML_API_SECRET in .env.");
+    } else {
+      setError("The call could not start. Check your Runway account and try again.");
+    }
   }
 
   return (

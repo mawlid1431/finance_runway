@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Orange rounded background -->
+  <rect width="32" height="32" rx="7" fill="#f97316"/>
+  <!-- Bar 1 (short) -->
+  <rect x="3.5" y="21" width="5" height="8" rx="1.25" fill="#1a0a00" fill-opacity="0.55"/>
+  <!-- Bar 2 (medium) -->
+  <rect x="13.5" y="15" width="5" height="14" rx="1.25" fill="#1a0a00" fill-opacity="0.8"/>
+  <!-- Bar 3 (tall) -->
+  <rect x="23.5" y="8" width="5" height="21" rx="1.25" fill="#1a0a00"/>
+  <!-- Trend line -->
+  <path d="M6 20 L16 13.5 L26 7" stroke="#1a0a00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

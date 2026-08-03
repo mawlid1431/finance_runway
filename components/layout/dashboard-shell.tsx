@@ -17,6 +17,7 @@ export function DashboardShell({
   const { panel, closePanel } = useDashboard();
   const [agentOpen, setAgentOpen] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("sidebar-collapsed");
@@ -33,7 +34,12 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen">
-      <Sidebar collapsed={sidebarCollapsed} onToggle={handleToggleSidebar} />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={handleToggleSidebar}
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+      />
       <main
         className={cn(
           "min-h-screen pb-16 transition-[margin] duration-300 ease-out motion-reduce:transition-none",
@@ -41,7 +47,7 @@ export function DashboardShell({
           "lg:mr-0",
         )}
       >
-        <TopBar />
+        <TopBar onMobileMenuOpen={() => setMobileOpen(true)} />
         <div className="mx-auto max-w-[1240px] px-4 pb-10 pt-6 sm:px-7 lg:px-8 lg:pt-8">
           {children}
         </div>

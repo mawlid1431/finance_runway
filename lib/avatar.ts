@@ -1,7 +1,7 @@
 export const NOVA_AVATAR_ID =
   process.env.NEXT_PUBLIC_RUNWAY_CHARACTER_ID ?? "4a9864c9-7361-4e6f-9f33-663fb137ffaa";
 
-export const NOVA_IMAGE = "/nova-support.png";
+export const NOVA_IMAGE = "/malitos.jpeg";
 
 export const NOVA_START_SCRIPT =
   "Hello, I'm Malitos, your AI Software Engineer and Technology Consultant. I can help you with software development, AI solutions, web and mobile applications, SaaS platforms, system architecture, APIs, cloud deployment, debugging, and product strategy. Whether you're starting a new project, improving an existing system, or solving a technical challenge, I'll provide practical guidance and reliable solutions. Tell me about your project or idea, and we'll build the best solution together.";

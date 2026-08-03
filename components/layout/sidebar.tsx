@@ -8,9 +8,11 @@ import {
   PanelLeftOpen,
   Settings2,
   TicketCheck,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
 import { FintechLogoIcon } from "@/components/layout/logo";
@@ -26,37 +28,61 @@ const items = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const { openPanel } = useDashboard();
+  // On mobile the drawer is always full-width — collapsed only applies on desktop
+  const iconOnly = collapsed && !mobileOpen;
+
+  useEffect(() => {
+    onMobileClose();
+  }, [pathname]);
 
   return (
-    <aside
-      className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-white/8 bg-[#111514] text-[#f4f1e8] transition-[width] duration-300 ease-out motion-reduce:transition-none md:flex",
-        collapsed ? "w-[72px]" : "w-[218px]",
-      )}
-    >
+    <>
+      {/* Mobile backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden",
+          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+        aria-hidden="true"
+        onClick={onMobileClose}
+      />
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col border-r border-white/8 bg-[#111514] text-[#f4f1e8]",
+          "transition-[width,transform] duration-300 ease-out motion-reduce:transition-none",
+          // Mobile: full sidebar width, slides in/out
+          "w-[260px]",
+          mobileOpen ? "translate-x-0" : "-translate-x-full",
+          // Desktop: always visible, width based on collapsed state
+          collapsed ? "md:w-[72px] md:translate-x-0" : "md:w-[218px] md:translate-x-0",
+        )}
+      >
       {/* ── Logo header row with collapse toggle ───────────────────────── */}
       <div
         className={cn(
           "flex h-[78px] shrink-0 items-center border-b border-white/8",
-          collapsed ? "justify-center px-0" : "px-4",
+          iconOnly ? "justify-center px-0" : "px-4",
         )}
       >
         <Link
           href="/"
           className={cn(
             "flex min-w-0 items-center gap-3",
-            collapsed ? "justify-center" : "flex-1",
+            iconOnly ? "justify-center" : "flex-1",
           )}
         >
           <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[var(--accent)] text-[#1a0a00]">
             <FintechLogoIcon className="size-[18px]" />
           </span>
-          {!collapsed && (
+          {!iconOnly && (
             <span className="min-w-0">
               <span className="block truncate text-[1.05rem] font-semibold leading-none tracking-[-0.04em]">
                 Fintech Finance
@@ -68,21 +94,30 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           )}
         </Link>
 
-        {/* Collapse button (shown when expanded, top-right of header) */}
-        {!collapsed && (
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          aria-label="Close navigation menu"
+          className="ml-2 grid size-8 shrink-0 place-items-center rounded-lg text-white/45 transition hover:bg-white/[0.07] hover:text-white/80 md:hidden"
+        >
+          <X className="size-4" />
+        </button>
+
+        {/* Collapse button (shown on desktop when expanded) */}
+        {!iconOnly && (
           <button
             onClick={onToggle}
             title="Collapse sidebar"
             aria-label="Collapse sidebar"
-            className="ml-2 grid size-8 shrink-0 place-items-center rounded-lg text-white/45 transition hover:bg-white/[0.07] hover:text-white/80"
+            className="ml-2 hidden size-8 shrink-0 place-items-center rounded-lg text-white/45 transition hover:bg-white/[0.07] hover:text-white/80 md:grid"
           >
             <PanelLeftClose className="size-4" />
           </button>
         )}
       </div>
 
-      {/* Expand button (shown when collapsed, sits just below the logo) */}
-      {collapsed && (
+      {/* Expand button (shown on desktop when collapsed) */}
+      {iconOnly && (
         <button
           onClick={onToggle}
           title="Expand sidebar"
@@ -95,7 +130,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
       <nav
-        className={cn("space-y-1 py-5", collapsed ? "px-2" : "px-3")}
+        className={cn("space-y-1 py-5", iconOnly ? "px-2" : "px-3")}
         aria-label="Primary navigation"
       >
         {items.map((item) => {
@@ -106,17 +141,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               href={item.href}
               id={item.target}
               data-avatar-target={item.target}
-              title={collapsed ? item.label : undefined}
+              title={iconOnly ? item.label : undefined}
               className={cn(
                 "flex items-center rounded-xl px-3 py-2.5 text-sm transition",
-                collapsed ? "justify-center" : "gap-3",
+                iconOnly ? "justify-center" : "gap-3",
                 active
                   ? "bg-white/[0.09] text-white"
                   : "text-white/48 hover:bg-white/[0.05] hover:text-white/80",
               )}
             >
               <item.icon className="size-4 shrink-0" />
-              {!collapsed && (
+              {!iconOnly && (
                 <>
                   <span className="font-medium">{item.label}</span>
                   {active && (
@@ -130,7 +165,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </nav>
 
       {/* ── Bottom section ──────────────────────────────────────────────── */}
-      {!collapsed && (
+      {(!collapsed || mobileOpen) && (
         <div className="mt-auto p-3">
           <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
             <p className="text-sm font-semibold">Malitos is on call</p>
@@ -155,5 +190,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       )}
     </aside>
+    </>
   );
 }

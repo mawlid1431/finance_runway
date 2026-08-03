@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { Bell, Moon, Sun } from "lucide-react";
+import { Bell, Menu, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,14 +18,11 @@ const pageNames: Record<string, string> = {
   "/settings": "Settings",
 };
 
-const mobileTargets: Record<string, string> = {
-  "/": "overview",
-  "/revenue": "revenue",
-  "/tickets": "tickets",
-  "/settings": "settings",
-};
+interface TopBarProps {
+  onMobileMenuOpen: () => void;
+}
 
-export function TopBar() {
+export function TopBar({ onMobileMenuOpen }: TopBarProps) {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { openPanel } = useDashboard();
@@ -36,13 +33,23 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--line)] bg-[color:var(--paper)]/88 backdrop-blur-xl">
       <div className="flex h-[66px] items-center justify-between px-4 sm:px-7 lg:px-8">
-        {/* Mobile logo */}
-        <Link href="/" className="flex items-center gap-3 md:hidden">
-          <span className="grid size-8 place-items-center rounded-xl bg-[var(--accent)] text-[#1a0a00]">
-            <FintechLogoIcon className="size-4" />
-          </span>
-          <span className="font-semibold tracking-[-0.04em]">Fintech Finance</span>
-        </Link>
+        {/* Mobile: hamburger + logo */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            className="grid size-9 place-items-center rounded-xl text-[var(--ink)] transition hover:bg-[var(--surface-raised)]"
+            onClick={onMobileMenuOpen}
+          >
+            <Menu className="size-5" />
+          </button>
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-xl bg-[var(--accent)] text-[#1a0a00]">
+              <FintechLogoIcon className="size-4" />
+            </span>
+            <span className="font-semibold tracking-[-0.04em]">Fintech Finance</span>
+          </Link>
+        </div>
 
         {/* Desktop breadcrumb */}
         <div className="hidden items-center gap-2 font-mono text-[0.64rem] uppercase tracking-[0.14em] text-[var(--muted)] md:flex">
@@ -90,21 +97,6 @@ export function TopBar() {
           </div>
         </div>
       </div>
-
-      {/* Mobile nav tabs */}
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-2 md:hidden" aria-label="Mobile navigation">
-        {Object.entries(pageNames).map(([href, label]) => (
-          <Link
-            key={href}
-            href={href}
-            id={`mobile-${mobileTargets[href]}`}
-            data-avatar-target={`mobile-${mobileTargets[href]}`}
-            className="rounded-full px-3 py-1.5 text-xs text-[var(--muted)] hover:bg-[var(--surface-raised)]"
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
     </header>
   );
 }

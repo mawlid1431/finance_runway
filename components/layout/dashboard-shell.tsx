@@ -38,7 +38,7 @@ export function DashboardShell({
         className={cn(
           "min-h-screen pb-16 transition-[margin] duration-300 ease-out motion-reduce:transition-none",
           sidebarCollapsed ? "md:ml-[72px]" : "md:ml-[218px]",
-          agentOpen ? "lg:mr-[320px]" : "lg:mr-0",
+          "lg:mr-0",
         )}
       >
         <TopBar />

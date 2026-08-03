@@ -65,36 +65,39 @@ export function AgentCard({
         id="nova-agent"
         data-avatar-target="nova-agent"
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-full overflow-hidden rounded-none border border-white/10 bg-[#101514] text-white shadow-[-24px_0_100px_rgba(4,8,7,0.3)] transition-transform duration-300 ease-out motion-reduce:transition-none sm:w-[320px] sm:rounded-l-[1.75rem]",
+          "fixed right-3 z-50 w-[268px] overflow-hidden rounded-2xl border border-white/10 bg-[#101514] text-white shadow-[0_20px_80px_rgba(4,8,7,0.45)] transition-all duration-300 ease-out motion-reduce:transition-none",
+          session
+            ? "bottom-3 top-[68px]"
+            : "top-[68px]",
           open
-            ? "translate-x-0"
-            : "pointer-events-none translate-x-full",
+            ? "translate-x-0 opacity-100"
+            : "pointer-events-none translate-x-4 opacity-0",
         )}
         aria-label="Malitos AI assistant"
         aria-hidden={!open}
         inert={!open}
       >
-        <div className="flex h-14 items-center gap-2.5 border-b border-white/10 px-4">
-          <span className="size-2 rounded-full bg-[var(--accent)]" />
-          <span className="text-sm font-semibold">Malitos</span>
-          <span className="font-mono text-[0.61rem] uppercase tracking-[0.15em] text-white/45">
+        <div className="flex h-11 items-center gap-2 border-b border-white/10 px-3.5">
+          <span className="size-1.5 rounded-full bg-[var(--accent)]" />
+          <span className="text-[0.8rem] font-semibold">Malitos</span>
+          <span className="font-mono text-[0.57rem] uppercase tracking-[0.14em] text-white/40">
             AI Consultant
           </span>
           <button
             id="nova-widget-minimize"
             data-avatar-target="nova-widget-minimize"
             type="button"
-            className="ml-auto grid size-8 place-items-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
+            className="ml-auto grid size-7 place-items-center rounded-lg text-white/45 transition hover:bg-white/10 hover:text-white"
             aria-label="Minimize Malitos"
             aria-expanded={open}
             aria-controls="nova-agent"
             onClick={() => onOpenChange(false)}
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-3.5" />
           </button>
         </div>
 
-        <div className="h-[calc(100dvh-3.5rem)] overflow-y-auto">
+        <div className={cn("overflow-y-auto", session ? "h-[calc(100%-2.75rem)]" : "")}>
           {session ? (
             <AvatarCall
               key={session.sessionId}
@@ -120,35 +123,35 @@ export function AgentCard({
               <ClientToolHandlers />
             </AvatarCall>
           ) : (
-            <div className="flex min-h-full flex-col justify-center p-5">
+            <div className="flex flex-col p-4">
               <div className="flex items-center gap-3">
                 <Image
                   src={NOVA_IMAGE}
                   alt="Malitos, Fintech Finance AI consultant"
-                  width={56}
-                  height={56}
-                  className="size-[56px] rounded-xl object-cover object-top"
+                  width={48}
+                  height={48}
+                  className="size-12 rounded-xl object-cover object-top"
                   preload
                 />
                 <div>
-                  <p className="font-mono text-[0.58rem] uppercase tracking-[0.15em] text-white/40">
+                  <p className="font-mono text-[0.56rem] uppercase tracking-[0.14em] text-white/38">
                     AI Consultant
                   </p>
-                  <h2 className="mt-0.5 text-lg font-semibold tracking-[-0.04em]">
+                  <h2 className="mt-0.5 text-base font-semibold tracking-[-0.03em]">
                     How can I help?
                   </h2>
                 </div>
               </div>
-              <div className="mt-4 rounded-xl border border-white/8 bg-white/[0.035] p-3">
-                <p className="font-mono text-[0.56rem] uppercase tracking-[0.13em] text-white/35">
+              <div className="mt-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2.5">
+                <p className="font-mono text-[0.54rem] uppercase tracking-[0.12em] text-white/32">
                   What Malitos can do
                 </p>
-                <p className="mt-1.5 text-xs leading-5 text-white/58">
-                  Navigate the UI, show dashboard insights, change revenue
-                  ranges, filter tickets, and create or update tickets.
+                <p className="mt-1 text-[0.72rem] leading-[1.55] text-white/55">
+                  Navigate the UI, explain insights, change revenue ranges,
+                  filter tickets, and create or update tickets.
                 </p>
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <Button
                   id="start-call"
                   data-avatar-target="start-call"
@@ -157,20 +160,20 @@ export function AgentCard({
                   disabled={starting}
                   onClick={startCall}
                 >
-                  <Headphones className="size-4" />
+                  <Headphones className="size-3.5" />
                   {starting ? "Starting..." : "Start call"}
                 </Button>
               </div>
               {error ? (
                 <p
                   role="alert"
-                  className="mt-3 text-center text-xs text-[#ff9b90]"
+                  className="mt-2.5 text-center text-[0.7rem] text-[#ff9b90]"
                 >
                   {error}
                 </p>
               ) : null}
-              <p className="mt-3 text-center font-mono text-[0.55rem] uppercase tracking-[0.11em] text-white/30">
-                Start · then use the screen button to share
+              <p className="mt-2 text-center font-mono text-[0.52rem] uppercase tracking-[0.1em] text-white/28">
+                Start · then share your screen
               </p>
             </div>
           )}

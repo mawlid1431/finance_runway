@@ -32,7 +32,8 @@ export function InfoPanel({
         role="dialog"
         aria-modal="true"
         aria-labelledby="info-panel-title"
-        aria-hidden={!panel}
+        // inert alone hides the closed panel from assistive tech and moves
+        // focus out; aria-hidden on a still-focused button triggers a warning.
         inert={!panel}
         className={cn(
           "fixed left-1/2 top-1/2 z-[61] w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] p-6 text-[var(--ink)] shadow-[0_30px_100px_rgba(5,8,7,0.35)] transition duration-200 ease-out motion-reduce:transition-none sm:p-7",

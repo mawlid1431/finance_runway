@@ -10,6 +10,8 @@ const config = defineConfig([
     ".vercel/**",
     "node_modules/**",
     ".agents/**",
+    "convex/_generated/**",
+    "agent/.venv/**",
     "next-env.d.ts",
   ]),
 ]);

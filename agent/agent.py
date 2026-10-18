@@ -248,7 +248,8 @@ async def entrypoint(ctx: JobContext) -> None:
         # video_input lets Malitos see the user's camera or shared screen.
         room_options=room_io.RoomOptions(video_input=True),
     )
-    session.generate_reply(instructions=GREETING, allow_interruptions=False)
+    # Interruptible, so the user can cut in (by voice or chat) during the greeting.
+    session.generate_reply(instructions=GREETING)
 
 
 if __name__ == "__main__":

@@ -1,92 +1,56 @@
-import { validateClientToolArgs } from "@runwayml/avatars-react/api";
 import { describe, expect, it } from "vitest";
 
+import { serverTools } from "@/lib/agent-tools";
 import {
-  filterTicketsTool,
-  openPanelTool,
-  refreshTicketsTool,
-  sessionTools,
-  setDateRangeTool,
+  CLIENT_TOOL_NAMES,
+  SERVER_TOOL_NAMES,
+  parseClientToolArgs,
 } from "@/lib/tools";
 
-describe("Nova tool contract", () => {
-  it("keeps the demo below Runway's 20-tool session limit", () => {
-    expect(sessionTools).toHaveLength(13);
+describe("Malitos tool contract", () => {
+  it("exposes all 13 tools", () => {
+    expect(CLIENT_TOOL_NAMES.length + SERVER_TOOL_NAMES.length).toBe(13);
+    expect(Object.keys(serverTools).sort()).toEqual(
+      [...SERVER_TOOL_NAMES].sort(),
+    );
   });
 
-  it("includes all three Page Actions with model-facing targets", () => {
-    for (const name of ["click", "scroll_to", "highlight"]) {
-      const tool = sessionTools.find((candidate) => candidate.name === name);
-      expect(tool).toMatchObject({ type: "client_event", name });
-      expect(tool?.parameters?.some((parameter) => parameter.name === "target")).toBe(
-        true,
-      );
+  it("includes all three page actions", () => {
+    for (const name of ["click", "scroll_to", "highlight"] as const) {
+      expect(CLIENT_TOOL_NAMES).toContain(name);
+      expect(
+        parseClientToolArgs(name, JSON.stringify({ target: "revenue-chart" })),
+      ).toMatchObject({ target: "revenue-chart" });
     }
   });
 
-  it("keeps Zod validation and explicit client-tool parameters in sync", () => {
-    expect(
-      validateClientToolArgs(setDateRangeTool, { range: "30d" }),
-    ).toEqual({ range: "30d" });
-    expect(validateClientToolArgs(setDateRangeTool, { range: "31d" })).toBeNull();
+  it("validates client tool arguments from the agent", () => {
+    const args = (value: unknown) => JSON.stringify(value);
 
-    const rangeTool = sessionTools.find((tool) => tool.name === "set_date_range");
-    expect(rangeTool?.parameters?.[0]).toMatchObject({
-      name: "range",
-      enum: ["7d", "30d", "90d"],
+    expect(parseClientToolArgs("set_date_range", args({ range: "30d" }))).toEqual({
+      range: "30d",
     });
-
+    expect(parseClientToolArgs("set_date_range", args({ range: "31d" }))).toBeNull();
     expect(
-      validateClientToolArgs(openPanelTool, {
-        title: "Revenue insight",
-        body: "Revenue is up.",
-      }),
-    ).toEqual({
-      title: "Revenue insight",
-      body: "Revenue is up.",
-    });
-    expect(validateClientToolArgs(openPanelTool, { title: "Missing body" })).toBeNull();
-
-    expect(
-      validateClientToolArgs(filterTicketsTool, { filter: "billing" }),
+      parseClientToolArgs("filter_tickets", args({ filter: "billing" })),
     ).toEqual({ filter: "billing" });
     expect(
-      validateClientToolArgs(filterTicketsTool, { filter: "product" }),
+      parseClientToolArgs("filter_tickets", args({ filter: "product" })),
     ).toBeNull();
-
-    const filterTool = sessionTools.find(
-      (tool) => tool.name === "filter_tickets",
-    );
-    expect(filterTool?.parameters?.[0]).toMatchObject({
-      name: "filter",
-      enum: ["all", "open", "billing"],
-    });
-
-    expect(validateClientToolArgs(refreshTicketsTool, {})).toEqual({});
     expect(
-      sessionTools.find((tool) => tool.name === "refresh_tickets"),
-    ).toMatchObject({
-      type: "client_event",
-      name: "refresh_tickets",
+      parseClientToolArgs(
+        "open_panel",
+        args({ title: "Revenue insight", body: "Revenue is up." }),
+      ),
+    ).toEqual({ title: "Revenue insight", body: "Revenue is up." });
+    expect(
+      parseClientToolArgs("open_panel", args({ title: "Missing body" })),
+    ).toBeNull();
+    expect(parseClientToolArgs("refresh_tickets", "")).toEqual({});
+    expect(parseClientToolArgs("highlight", "not json")).toBeNull();
+    expect(parseClientToolArgs("highlight", args({ target: "x" }))).toEqual({
+      target: "x",
+      durationMs: 3000,
     });
-  });
-
-  it("declares every local-data server capability with a bounded timeout", () => {
-    for (const name of [
-      "get_overview_insights",
-      "get_revenue",
-      "get_ticket_insights",
-      "get_ticket",
-      "create_ticket",
-      "update_ticket_status",
-    ]) {
-      expect(sessionTools).toContainEqual(
-        expect.objectContaining({
-          type: "backend_rpc",
-          name,
-          timeoutSeconds: 8,
-        }),
-      );
-    }
   });
 });

@@ -39,14 +39,14 @@ describe("Overview tool examples", () => {
     });
   });
 
-  it("clearly separates every Runway session tool with a manual path", () => {
+  it("clearly separates every Malitos tool with a manual path", () => {
     render(<OverviewPage />);
 
     expect(
       screen.getByRole("heading", { name: "Changes what you see." }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Gives Nova something to say." }),
+      screen.getByRole("heading", { name: "Gives Malitos something to say." }),
     ).toBeInTheDocument();
     expect(screen.getByText("Browser only")).toBeInTheDocument();
     expect(screen.getByText("Returns data")).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe("Overview tool examples", () => {
     ).toHaveAttribute("href", "/tickets#ticket-status-4803");
   });
 
-  it("keeps details and page insights clickable without a Runway call", () => {
+  it("keeps details and page insights clickable without an avatar call", () => {
     render(<OverviewPage />);
 
     fireEvent.click(

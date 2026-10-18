@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
-import "@runwayml/avatars-react/styles.css";
 import "./globals.css";
 
 import { Providers } from "@/components/layout/providers";

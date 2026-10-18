@@ -28,13 +28,13 @@ export function ToolExamples({
     >
       <div className="p-5 sm:p-6">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.16em] text-[var(--muted)]">
-          Runway tool examples
+          Malitos tool examples
         </p>
         <h2 className="mt-2 text-2xl font-semibold">
           Client tools change the page. Server tools answer back.
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-          Click any example yourself, or say the quoted prompt to Nova.
+          Click any example yourself, or say the quoted prompt to Malitos.
         </p>
       </div>
 
@@ -150,10 +150,10 @@ export function ToolExamples({
             </span>
           </div>
           <h3 id="server-tools-title" className="mt-4 text-xl font-semibold">
-            Gives Nova something to say.
+            Gives Malitos something to say.
           </h3>
           <p className="mt-2 text-sm leading-6 opacity-65">
-            Reads or updates local demo data and returns a result Nova can
+            Reads or updates local demo data and returns a result Malitos can
             explain aloud.
           </p>
 
@@ -280,7 +280,7 @@ export function ToolExamples({
             </h3>
           </div>
           <p className="mt-1 text-xs leading-5 text-[var(--muted)]">
-            Nova can move around the same UI.
+            Malitos can move around the same UI.
           </p>
         </div>
         <div className="grid flex-1 gap-2 sm:grid-cols-3">

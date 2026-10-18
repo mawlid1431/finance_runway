@@ -1,6 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
+// /api/agent is called by the Malitos worker, which authenticates with
+// AGENT_SHARED_SECRET in the route itself rather than a Clerk session.
+const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/api/agent/(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {

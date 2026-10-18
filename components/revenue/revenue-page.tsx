@@ -46,7 +46,7 @@ export function RevenuePage() {
       <PageHeader
         eyebrow="Revenue intelligence"
         title="Find what changed."
-        description="Change the range, inspect the refund, or export the same demo rows Nova reads."
+        description="Change the range, inspect the refund, or export the same demo rows Malitos reads."
       />
 
       <section

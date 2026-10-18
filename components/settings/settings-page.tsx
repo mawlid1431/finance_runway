@@ -15,7 +15,7 @@ import { useDashboard } from "@/components/layout/dashboard-provider";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { NOVA_IMAGE } from "@/lib/avatar";
+import { MALITOS_IMAGE } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 export function SettingsPage() {
@@ -63,7 +63,7 @@ export function SettingsPage() {
           <Moon className="size-5 text-[var(--muted)]" />
           <h2 className="mt-4 text-xl font-semibold">Appearance</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            This uses the same theme switch Nova clicks in the header.
+            This uses the same theme switch Malitos clicks in the header.
           </p>
           <div className="mt-5 grid grid-cols-2 gap-2">
             {(["light", "dark"] as const).map((theme) => (
@@ -125,18 +125,18 @@ export function SettingsPage() {
         >
           <div className="flex items-center gap-4">
             <Image
-              src={NOVA_IMAGE}
-              alt="Nova support character"
+              src={MALITOS_IMAGE}
+              alt="Malitos, Fintech Finance AI consultant"
               width={72}
               height={72}
               className="size-[72px] shrink-0 rounded-2xl object-cover object-top"
             />
             <div>
               <p className="font-mono text-[0.63rem] uppercase tracking-[0.16em] text-[var(--muted)]">
-                Custom Runway Character
+                Synthesia Interactive Avatar
               </p>
-              <h2 className="mt-1 text-xl font-semibold">Nova Support</h2>
-              <p className="mt-1 text-sm text-[var(--muted)]">Clara preset voice</p>
+              <h2 className="mt-1 text-xl font-semibold">Malitos</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">AI Consultant · live video</p>
             </div>
           </div>
           <Button
@@ -146,8 +146,8 @@ export function SettingsPage() {
             className="mt-5 w-full"
             onClick={() =>
               openPanel({
-                title: "Nova Support",
-                body: "An original Runway-generated support specialist with a brief greeting and concise response instructions.",
+                title: "Malitos",
+                body: "A Synthesia interactive avatar running over LiveKit. Malitos can navigate the dashboard, explain insights, and create or update tickets.",
               })
             }
           >
@@ -163,7 +163,7 @@ export function SettingsPage() {
           <Mic2 className="size-5 text-[var(--muted)]" />
           <h2 className="mt-4 text-xl font-semibold">Call readiness</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Test permission before spending any Runway call credits.
+            Test permission before spending any avatar call minutes.
           </p>
           <div className="mt-5 grid gap-2">
             <Button
@@ -183,7 +183,7 @@ export function SettingsPage() {
               onClick={() =>
                 openPanel({
                   title: "Screen sharing",
-                  body: "Start Nova’s call, then use the screen button in Runway’s control bar.",
+                  body: "Start the Malitos call, then use the screen button in the call controls.",
                 })
               }
             >
@@ -199,7 +199,7 @@ export function SettingsPage() {
             onClick={() =>
               openPanel({
                 title: "Connections ready",
-                body: "Local demo data is ready. Ticket changes reset when the dev server restarts, and Runway creates a fresh five-minute session only when you start a call.",
+                body: "Local demo data is ready. Ticket changes reset when the dev server restarts, and a fresh Synthesia avatar session starts only when you start a call.",
               })
             }
           >

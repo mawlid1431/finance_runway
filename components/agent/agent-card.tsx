@@ -1,22 +1,15 @@
 "use client";
 
-import {
-  AvatarCall,
-  AvatarVideo,
-  ControlBar,
-  PageActions,
-  ScreenShareVideo,
-  type SessionCredentials,
-  UserVideo,
-} from "@runwayml/avatars-react";
+import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
 import { ChevronLeft, ChevronRight, Headphones } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
-import { createAvatarSession } from "@/actions/avatar";
+import { createAvatarSession, type AvatarSession } from "@/actions/avatar";
+import { AvatarStage, CallControls } from "@/components/agent/avatar-stage";
 import { ClientToolHandlers } from "@/components/agent/client-tool-handlers";
 import { Button } from "@/components/ui/button";
-import { NOVA_AVATAR_ID, NOVA_IMAGE } from "@/lib/avatar";
+import { MALITOS_IMAGE } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 
 export function AgentCard({
@@ -26,7 +19,7 @@ export function AgentCard({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const [session, setSession] = useState<SessionCredentials | null>(null);
+  const [session, setSession] = useState<AvatarSession | null>(null);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,12 +48,12 @@ export function AgentCard({
   function showCallError(callError: Error) {
     console.error(callError);
     const msg = callError.message ?? "";
-    if (msg.includes("credits")) {
-      setError("Runway credits are empty — top up at dev.runwayml.com to start a call.");
+    if (msg.includes("not configured")) {
+      setError("Malitos is not configured yet. Add the LiveKit keys to .env.");
     } else if (msg.includes("401") || msg.includes("403")) {
-      setError("Invalid Runway API key. Check RUNWAYML_API_SECRET in .env.");
+      setError("Sign in again, then start the call.");
     } else {
-      setError("The call could not start. Check your Runway account and try again.");
+      setError("The call could not start. Check your connection and try again.");
     }
   }
 
@@ -104,34 +97,30 @@ export function AgentCard({
 
         <div className={cn("overflow-y-auto", session ? "h-[calc(100%-2.75rem)]" : "")}>
           {session ? (
-            <AvatarCall
+            <LiveKitRoom
               key={session.sessionId}
-              avatarId={NOVA_AVATAR_ID}
-              credentials={session}
+              serverUrl={session.serverUrl}
+              token={session.token}
+              connect
+              audio
               video={false}
-              className="h-full !aspect-auto rounded-none"
-              onEnd={() => endCall(session.sessionId)}
+              className="relative h-full"
+              onDisconnected={() => endCall(session.sessionId)}
               onError={(callError) => {
                 showCallError(callError);
                 endCall(session.sessionId);
               }}
             >
-              <AvatarVideo className="!absolute inset-0" />
-              <ScreenShareVideo className="!absolute bottom-32 left-4 aspect-video !h-auto !w-[55%] overflow-hidden rounded-lg" />
-              <UserVideo className="!bottom-32" />
-              <PageActions
-                highlightDuration={3000}
-                scrollBehavior="smooth"
-                scrollBlock="center"
-              />
-              <ControlBar showCamera={true} showScreenShare />
+              <AvatarStage />
+              <RoomAudioRenderer />
+              <CallControls />
               <ClientToolHandlers />
-            </AvatarCall>
+            </LiveKitRoom>
           ) : (
             <div className="flex flex-col p-4">
               <div className="flex items-center gap-3">
                 <Image
-                  src={NOVA_IMAGE}
+                  src={MALITOS_IMAGE}
                   alt="Malitos, Fintech Finance AI consultant"
                   width={48}
                   height={48}

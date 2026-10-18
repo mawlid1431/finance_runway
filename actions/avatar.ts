@@ -1,109 +1,57 @@
 "use server";
 
-import { createRpcHandler, type RpcHandler } from "@runwayml/avatars-node-rpc";
-import Runway from "@runwayml/sdk";
-import { consumeSession, pollUntilReady } from "@runwayml/avatars-react/api";
-
+import { auth } from "@clerk/nextjs/server";
+import { randomUUID } from "crypto";
 import {
-  NOVA_AVATAR_ID,
-  NOVA_PERSONALITY,
-  NOVA_START_SCRIPT,
-} from "@/lib/avatar";
-import { getDemoRevenue } from "@/lib/demo-data";
-import {
-  createDemoTicket,
-  getDemoTicket,
-  getDemoTicketInsights,
-  updateDemoTicketStatus,
-} from "@/lib/demo-store";
-import { sessionTools } from "@/lib/tools";
-import type {
-  RevenueRange,
-  TicketStatus,
-  TicketTeam,
-} from "@/lib/types";
+  AccessToken,
+  RoomAgentDispatch,
+  RoomConfiguration,
+} from "livekit-server-sdk";
 
-const handlers = new Map<string, RpcHandler>();
-const runway = new Runway();
+import { MALITOS_AGENT_NAME } from "@/lib/avatar";
 
-export async function createAvatarSession() {
-  const apiKey = process.env.RUNWAYML_API_SECRET!;
-  const { id: sessionId } = await runway.realtimeSessions.create({
-    model: "gwm1_avatars",
-    avatar: { type: "custom", avatarId: NOVA_AVATAR_ID },
-    personality: NOVA_PERSONALITY,
-    startScript: NOVA_START_SCRIPT,
-    tools: sessionTools,
+export type AvatarSession = {
+  sessionId: string;
+  serverUrl: string;
+  token: string;
+  roomName: string;
+};
+
+export async function createAvatarSession(): Promise<AvatarSession> {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("401: sign in to start a call.");
+  }
+
+  const serverUrl = process.env.LIVEKIT_URL;
+  if (!serverUrl || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
+    throw new Error("LiveKit is not configured. Set LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET.");
+  }
+
+  // A fresh room per call so the agent worker is dispatched every time.
+  const roomName = `malitos-${randomUUID().slice(0, 8)}`;
+  const token = new AccessToken(
+    process.env.LIVEKIT_API_KEY,
+    process.env.LIVEKIT_API_SECRET,
+    { identity: `user-${userId}`, ttl: "15m" },
+  );
+  token.addGrant({
+    room: roomName,
+    roomJoin: true,
+    canPublish: true,
+    canSubscribe: true,
+    canPublishData: true,
   });
-
-  const { sessionKey } = await pollUntilReady({
-    sessionId,
-    apiKey,
+  token.roomConfig = new RoomConfiguration({
+    // Keeps the avatar's audio and video in sync in the browser.
+    syncStreams: true,
+    agents: [new RoomAgentDispatch({ agentName: MALITOS_AGENT_NAME })],
   });
-
-  const handler = await createRpcHandler({
-    apiKey,
-    sessionId,
-    tools: {
-      get_overview_insights: async () => {
-        const revenue = getDemoRevenue("30d");
-        const tickets = getDemoTicketInsights();
-
-        return {
-          revenue: {
-            total: revenue.total,
-            changePct: revenue.changePct,
-            refundCount: revenue.refundCount,
-          },
-          support: {
-            total: tickets.total,
-            open: tickets.open,
-            topTeam: tickets.topTeam,
-            latestTicket: tickets.latestTicket,
-          },
-        };
-      },
-      get_revenue: async (args) => {
-        const revenue = getDemoRevenue(String(args.range) as RevenueRange);
-        return {
-          total: revenue.total,
-          changePct: revenue.changePct,
-          dailyAverage: revenue.dailyAverage,
-          peakDay: revenue.peakDay,
-          refundCount: revenue.refundCount,
-          dip: revenue.dip,
-        };
-      },
-      get_ticket_insights: async () => ({ ...getDemoTicketInsights() }),
-      get_ticket: async (args) => ({
-        ticket: getDemoTicket(Number(args.ticketId)),
-      }),
-      create_ticket: async (args) => {
-        const ticket = createDemoTicket({
-          subject: String(args.subject),
-          team: String(args.team) as TicketTeam,
-        });
-        return { ticket };
-      },
-      update_ticket_status: async (args) => {
-        const ticket = updateDemoTicketStatus({
-          ticketId: Number(args.ticketId),
-          status: String(args.status) as TicketStatus,
-        });
-        return { ...ticket };
-      },
-    },
-    onDisconnected: () => handlers.delete(sessionId),
-    onError: (error) => console.error("Runway RPC error:", error.message),
-  });
-
-  handlers.set(sessionId, handler);
-  const credentials = await consumeSession({ sessionId, sessionKey });
 
   return {
-    sessionId,
-    serverUrl: credentials.url,
-    token: credentials.token,
-    roomName: credentials.roomName,
+    sessionId: roomName,
+    serverUrl,
+    token: await token.toJwt(),
+    roomName,
   };
 }

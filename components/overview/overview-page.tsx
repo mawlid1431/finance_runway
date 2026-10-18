@@ -30,7 +30,7 @@ export function OverviewPage() {
       <PageHeader
         eyebrow="Live operations · Dubai"
         title="Your support signal."
-        description="Open any card yourself, or ask Nova to navigate and take the same actions."
+        description="Open any card yourself, or ask Malitos to navigate and take the same actions."
       />
 
       <section

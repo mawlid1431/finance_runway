@@ -12,46 +12,40 @@ vi.mock("@/actions/avatar", () => ({ createAvatarSession }));
 vi.mock("@/components/agent/client-tool-handlers", () => ({
   ClientToolHandlers: () => null,
 }));
-vi.mock("@runwayml/avatars-react", () => ({
-  AvatarCall: ({
-    credentials,
-    onEnd,
+vi.mock("@/components/agent/avatar-stage", () => ({
+  AvatarStage: () => <div data-testid="avatar-stage" />,
+  CallControls: () => null,
+}));
+vi.mock("@livekit/components-react", () => ({
+  LiveKitRoom: ({
+    token,
+    onDisconnected,
     children,
   }: {
-    credentials: { sessionId: string };
-    onEnd: () => void;
+    token: string;
+    onDisconnected: () => void;
     children: ReactNode;
   }) => (
-    <div data-testid={`call-${credentials.sessionId}`}>
+    <div data-testid={`room-${token}`}>
       {children}
-      <button onClick={onEnd}>Hang up</button>
+      <button onClick={onDisconnected}>Hang up</button>
     </div>
   ),
-  AvatarVideo: ({ className }: { className?: string }) => (
-    <div className={className} data-testid="avatar-video" />
-  ),
-  ControlBar: () => null,
-  PageActions: () => null,
-  ScreenShareVideo: ({ className }: { className?: string }) => (
-    <div className={className} data-testid="screen-share-video" />
-  ),
-  UserVideo: ({ className }: { className?: string }) => (
-    <div className={className} data-testid="user-video" />
-  ),
+  RoomAudioRenderer: () => null,
 }));
 
 const firstSession = {
-  sessionId: "session-1",
+  sessionId: "malitos-1",
   serverUrl: "wss://example.com",
   token: "token-1",
-  roomName: "room-1",
+  roomName: "malitos-1",
 };
 
 const secondSession = {
   ...firstSession,
-  sessionId: "session-2",
+  sessionId: "malitos-2",
   token: "token-2",
-  roomName: "room-2",
+  roomName: "malitos-2",
 };
 
 describe("AgentCard", () => {
@@ -63,27 +57,30 @@ describe("AgentCard", () => {
     render(<AgentCard open onOpenChange={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Start call" }));
-    expect(await screen.findByTestId("call-session-1")).toBeInTheDocument();
-    expect(screen.getByTestId("avatar-video")).toHaveClass(
-      "!absolute",
-      "inset-0",
-    );
-    expect(screen.getByTestId("screen-share-video")).toHaveClass(
-      "!absolute",
-      "bottom-32",
-      "left-4",
-      "aspect-video",
-      "!w-[55%]",
-    );
-    expect(screen.getByTestId("user-video")).toHaveClass("!bottom-32");
+    expect(await screen.findByTestId("room-token-1")).toBeInTheDocument();
+    expect(screen.getByTestId("avatar-stage")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Hang up" }));
     await waitFor(() =>
-      expect(screen.queryByTestId("call-session-1")).not.toBeInTheDocument(),
+      expect(screen.queryByTestId("room-token-1")).not.toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Start call" }));
-    expect(await screen.findByTestId("call-session-2")).toBeInTheDocument();
+    expect(await screen.findByTestId("room-token-2")).toBeInTheDocument();
     expect(createAvatarSession).toHaveBeenCalledTimes(2);
+  });
+
+  it("explains a missing LiveKit configuration", async () => {
+    createAvatarSession.mockRejectedValueOnce(
+      new Error("LiveKit is not configured."),
+    );
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<AgentCard open onOpenChange={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Start call" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Add the LiveKit keys",
+    );
   });
 });

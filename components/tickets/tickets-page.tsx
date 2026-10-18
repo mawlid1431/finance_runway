@@ -46,7 +46,7 @@ export function TicketsPage() {
       <PageHeader
         eyebrow="Customer support"
         title="Work the queue."
-        description="Filter, inspect, and update the same local demo tickets available to Nova."
+        description="Filter, inspect, and update the same local demo tickets available to Malitos."
       />
 
       <section

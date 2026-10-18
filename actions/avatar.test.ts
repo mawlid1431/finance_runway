@@ -20,7 +20,9 @@ describe("createAvatarSession", () => {
   });
 
   it("mints a room token that dispatches the Malitos agent", async () => {
-    const session = await createAvatarSession();
+    const result = await createAvatarSession();
+    if (!result.ok) throw new Error(result.reason);
+    const { session } = result;
 
     expect(session.serverUrl).toBe("wss://malitos.livekit.example");
     expect(session.roomName).toMatch(/^malitos-[0-9a-f]{8}$/);
@@ -43,16 +45,25 @@ describe("createAvatarSession", () => {
   it("creates a fresh room for every call", async () => {
     const first = await createAvatarSession();
     const second = await createAvatarSession();
-    expect(first.roomName).not.toBe(second.roomName);
+    expect(first.ok && second.ok).toBe(true);
+    if (first.ok && second.ok) {
+      expect(first.session.roomName).not.toBe(second.session.roomName);
+    }
   });
 
   it("refuses signed-out callers", async () => {
     auth.mockResolvedValue({ userId: null });
-    await expect(createAvatarSession()).rejects.toThrow("401");
+    await expect(createAvatarSession()).resolves.toEqual({
+      ok: false,
+      reason: "unauthorized",
+    });
   });
 
   it("explains missing LiveKit configuration", async () => {
     vi.stubEnv("LIVEKIT_URL", "");
-    await expect(createAvatarSession()).rejects.toThrow("not configured");
+    await expect(createAvatarSession()).resolves.toEqual({
+      ok: false,
+      reason: "not_configured",
+    });
   });
 });

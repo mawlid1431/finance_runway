@@ -29,7 +29,7 @@ export async function POST(
 
   try {
     const input = await request.json().catch(() => ({}));
-    return NextResponse.json(runServerTool(tool, input));
+    return NextResponse.json(await runServerTool(tool, input));
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "The tool failed." },

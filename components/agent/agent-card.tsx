@@ -27,7 +27,16 @@ export function AgentCard({
     setError(null);
     setStarting(true);
     try {
-      setSession(await createAvatarSession());
+      const result = await createAvatarSession();
+      if (result.ok) {
+        setSession(result.session);
+      } else {
+        setError(
+          result.reason === "not_configured"
+            ? "Malitos is not configured yet. Add the LiveKit keys to the environment."
+            : "Sign in again, then start the call.",
+        );
+      }
     } catch (startError) {
       showCallError(
         startError instanceof Error
@@ -48,10 +57,8 @@ export function AgentCard({
   function showCallError(callError: Error) {
     console.error(callError);
     const msg = callError.message ?? "";
-    if (msg.includes("not configured")) {
-      setError("Malitos is not configured yet. Add the LiveKit keys to .env.");
-    } else if (msg.includes("401") || msg.includes("403")) {
-      setError("Sign in again, then start the call.");
+    if (msg.includes("Permission") || msg.includes("NotAllowed")) {
+      setError("Allow microphone access, then start the call again.");
     } else {
       setError("The call could not start. Check your connection and try again.");
     }

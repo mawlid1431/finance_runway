@@ -1,4 +1,8 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { auth } = vi.hoisted(() => ({ auth: vi.fn() }));
+vi.mock("@clerk/nextjs/server", () => ({ auth }));
+vi.mock("server-only", () => ({}));
 
 import {
   createTicket,
@@ -9,6 +13,8 @@ import { resetDemoTickets } from "@/lib/demo-store";
 
 describe("demo ticket actions", () => {
   beforeEach(() => {
+    vi.stubEnv("CONVEX_URL", "");
+    auth.mockResolvedValue({ userId: "user_1" });
     resetDemoTickets();
   });
 
@@ -25,5 +31,16 @@ describe("demo ticket actions", () => {
 
     expect(updated.status).toBe("closed");
     expect(tickets[0]).toEqual(updated);
+  });
+
+  it("refuses signed-out callers", async () => {
+    auth.mockResolvedValue({ userId: null });
+    await expect(getTickets()).rejects.toThrow("Sign in");
+  });
+
+  it("rejects invalid ticket input", async () => {
+    await expect(
+      createTicket({ subject: "", team: "Billing" }),
+    ).rejects.toThrow();
   });
 });

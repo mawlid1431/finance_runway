@@ -4,7 +4,7 @@ import type {
   RevenueResult,
   TicketInsights,
   TicketRecord,
-} from "@/lib/types";
+} from "./types";
 
 const DAY_MS = 24 * 60 * 60 * 1_000;
 const DEMO_END_DATE = Date.UTC(2026, 6, 24);

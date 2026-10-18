@@ -1,0 +1,8 @@
+# The Malitos agent worker is Python and runs on LiveKit Cloud, not Vercel.
+/agent/
+
+/.claude/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/

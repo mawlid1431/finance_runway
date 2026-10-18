@@ -51,8 +51,8 @@ const secondSession = {
 describe("AgentCard", () => {
   it("creates fresh credentials after hanging up", async () => {
     createAvatarSession
-      .mockResolvedValueOnce(firstSession)
-      .mockResolvedValueOnce(secondSession);
+      .mockResolvedValueOnce({ ok: true, session: firstSession })
+      .mockResolvedValueOnce({ ok: true, session: secondSession });
 
     render(<AgentCard open onOpenChange={() => {}} />);
 
@@ -71,10 +71,10 @@ describe("AgentCard", () => {
   });
 
   it("explains a missing LiveKit configuration", async () => {
-    createAvatarSession.mockRejectedValueOnce(
-      new Error("LiveKit is not configured."),
-    );
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    createAvatarSession.mockResolvedValueOnce({
+      ok: false,
+      reason: "not_configured",
+    });
 
     render(<AgentCard open onOpenChange={() => {}} />);
     fireEvent.click(screen.getByRole("button", { name: "Start call" }));

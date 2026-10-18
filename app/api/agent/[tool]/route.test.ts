@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 import { POST } from "@/app/api/agent/[tool]/route";
 import { getDemoRevenue } from "@/lib/demo-data";
 import { resetDemoTickets } from "@/lib/demo-store";
@@ -21,6 +23,7 @@ function call(tool: string, body: unknown, secret = SECRET) {
 describe("/api/agent/[tool]", () => {
   beforeEach(() => {
     vi.stubEnv("AGENT_SHARED_SECRET", SECRET);
+    vi.stubEnv("CONVEX_URL", "");
     resetDemoTickets();
   });
 

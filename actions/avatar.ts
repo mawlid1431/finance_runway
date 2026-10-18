@@ -17,15 +17,21 @@ export type AvatarSession = {
   roomName: string;
 };
 
-export async function createAvatarSession(): Promise<AvatarSession> {
+// Production builds strip thrown error messages from server actions, so
+// expected failures are returned as a reason the panel can explain.
+export type AvatarSessionResult =
+  | { ok: true; session: AvatarSession }
+  | { ok: false; reason: "unauthorized" | "not_configured" };
+
+export async function createAvatarSession(): Promise<AvatarSessionResult> {
   const { userId } = await auth();
   if (!userId) {
-    throw new Error("401: sign in to start a call.");
+    return { ok: false, reason: "unauthorized" };
   }
 
   const serverUrl = process.env.LIVEKIT_URL;
   if (!serverUrl || !process.env.LIVEKIT_API_KEY || !process.env.LIVEKIT_API_SECRET) {
-    throw new Error("LiveKit is not configured. Set LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET.");
+    return { ok: false, reason: "not_configured" };
   }
 
   // A fresh room per call so the agent worker is dispatched every time.
@@ -49,9 +55,12 @@ export async function createAvatarSession(): Promise<AvatarSession> {
   });
 
   return {
-    sessionId: roomName,
-    serverUrl,
-    token: await token.toJwt(),
-    roomName,
+    ok: true,
+    session: {
+      sessionId: roomName,
+      serverUrl,
+      token: await token.toJwt(),
+      roomName,
+    },
   };
 }

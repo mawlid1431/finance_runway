@@ -42,3 +42,4 @@ next-env.d.ts
 # Malitos agent worker (Python)
 agent/.venv/
 __pycache__/
+.vercel

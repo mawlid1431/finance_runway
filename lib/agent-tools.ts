@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-import { getDemoRevenue } from "@/lib/demo-data";
 import {
   createTicket,
   getTicket,
+  getRevenueSummary,
   getTicketInsightsFromStore,
   updateTicketStatus,
 } from "@/lib/ticket-store";
@@ -18,8 +18,10 @@ export const serverTools = {
   get_overview_insights: {
     schema: z.object({}),
     run: async () => {
-      const revenue = getDemoRevenue("30d");
-      const tickets = await getTicketInsightsFromStore();
+      const [revenue, tickets] = await Promise.all([
+        getRevenueSummary("30d"),
+        getTicketInsightsFromStore(),
+      ]);
       return {
         revenue: {
           total: revenue.total,
@@ -37,8 +39,8 @@ export const serverTools = {
   },
   get_revenue: {
     schema: z.object({ range: range.default("30d") }),
-    run: (args: { range: z.infer<typeof range> }) => {
-      const revenue = getDemoRevenue(args.range);
+    run: async (args: { range: z.infer<typeof range> }) => {
+      const revenue = await getRevenueSummary(args.range);
       return {
         total: revenue.total,
         changePct: revenue.changePct,

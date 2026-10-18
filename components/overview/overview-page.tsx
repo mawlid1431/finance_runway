@@ -9,12 +9,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ToolExamples } from "@/components/overview/tool-examples";
 import { Card } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
-import { getDemoRevenue } from "@/lib/demo-data";
 import { formatCurrency } from "@/lib/utils";
 
 export function OverviewPage() {
-  const { openPanel, tickets, ticketInsights } = useDashboard();
-  const revenue = getDemoRevenue("30d");
+  const { openPanel, tickets, ticketInsights, getRevenue } = useDashboard();
+  const revenue = getRevenue("30d");
   const recentTickets = tickets.slice(0, 4);
   const overviewInsight = `${formatCurrency(revenue.total)} in 30-day revenue, ${revenue.changePct}% versus the previous period, ${revenue.refundCount} refund flags, and ${ticketInsights.open} open tickets.${
     ticketInsights.topTeam
@@ -28,7 +27,7 @@ export function OverviewPage() {
   return (
     <div id="overview-page" data-avatar-target="overview-page">
       <PageHeader
-        eyebrow="Live operations · Dubai"
+        eyebrow="Live operations · real-time"
         title="Your support signal."
         description="Open any card yourself, or ask Malitos to navigate and take the same actions."
       />

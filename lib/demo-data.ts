@@ -132,13 +132,19 @@ export const DEMO_TICKETS: TicketRecord[] = [
 ];
 
 export function getDemoRevenue(range: RevenueRange): RevenueResult {
+  return summarizeRevenue(DEMO_REVENUE, range);
+}
+
+// Summarises daily revenue rows (oldest first) for one range, comparing it with
+// the period just before it. Used for live Convex data and the starter data.
+export function summarizeRevenue(
+  rows: RevenuePoint[],
+  range: RevenueRange,
+): RevenueResult {
   const days = DAYS_BY_RANGE[range];
-  const series = DEMO_REVENUE.slice(-days);
-  const comparisonRows = DEMO_REVENUE.slice(-days);
-  const previousRows = DEMO_REVENUE.slice(
-    -(days * 2),
-    -days,
-  );
+  const series = rows.slice(-days);
+  const comparisonRows = series;
+  const previousRows = rows.slice(-(days * 2), -days);
 
   const comparisonTotal = total(comparisonRows);
   const previousTotal = total(previousRows);
@@ -164,7 +170,7 @@ export function getDemoRevenue(range: RevenueRange): RevenueResult {
               100,
             1,
           ),
-    dailyAverage: round(selectedTotal / series.length, 2),
+    dailyAverage: series.length ? round(selectedTotal / series.length, 2) : 0,
     peakDay: peakDay
       ? {
           date: peakDay.date,

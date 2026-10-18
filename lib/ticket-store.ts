@@ -4,16 +4,17 @@ import { ConvexHttpClient } from "convex/browser";
 import { ConvexError } from "convex/values";
 
 import { api } from "@/convex/_generated/api";
-import { getTicketInsights } from "@/lib/demo-data";
+import { getDemoRevenue, getTicketInsights } from "@/lib/demo-data";
 import * as memory from "@/lib/demo-store";
 import type {
+  RevenueRange,
   TicketInsights,
   TicketRecord,
   TicketStatus,
   TicketTeam,
 } from "@/lib/types";
 
-// Tickets live in Convex when CONVEX_URL is set. Without it (tests, a fresh
+// Tickets and revenue live in Convex when CONVEX_URL is set. Without it (tests, a fresh
 // checkout) they fall back to the in-memory demo store.
 
 function convex() {
@@ -70,4 +71,12 @@ export async function updateTicketStatus(input: {
 
 export async function getTicketInsightsFromStore(): Promise<TicketInsights> {
   return getTicketInsights(await listTickets());
+}
+
+export async function getRevenueSummary(range: RevenueRange) {
+  const db = convex();
+  if (!db) {
+    return { ...getDemoRevenue(range), series: undefined };
+  }
+  return call(() => db.client.query(api.revenue.summary, { secret: db.secret, range }));
 }

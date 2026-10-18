@@ -33,6 +33,8 @@ describe("Overview tool examples", () => {
       createTicket: vi.fn(),
       updateTicketStatus: vi.fn(),
       refreshTickets: vi.fn(),
+      loading: false,
+      getRevenue: getDemoRevenue,
       panel: null,
       openPanel,
       closePanel: vi.fn(),

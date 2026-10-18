@@ -11,12 +11,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { RevenueChart } from "@/components/revenue/revenue-chart";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getDemoRevenue } from "@/lib/demo-data";
 import { formatCurrency, formatShortDate } from "@/lib/utils";
 
 export function RevenuePage() {
-  const { range, setRange, openPanel } = useDashboard();
-  const revenue = getDemoRevenue(range);
+  const { range, setRange, openPanel, getRevenue } = useDashboard();
+  const revenue = getRevenue(range);
   const revenueInsight = `${formatCurrency(revenue.total)} total at ${formatCurrency(revenue.dailyAverage)} per day, ${revenue.changePct}% versus the previous comparable period. ${
     revenue.peakDay
       ? `The peak was ${formatCurrency(revenue.peakDay.amount)} on ${formatShortDate(revenue.peakDay.date)}.`
@@ -46,7 +45,7 @@ export function RevenuePage() {
       <PageHeader
         eyebrow="Revenue intelligence"
         title="Find what changed."
-        description="Change the range, inspect the refund, or export the same demo rows Malitos reads."
+        description="Change the range, inspect the refund, or export the same live data Malitos reads."
       />
 
       <section

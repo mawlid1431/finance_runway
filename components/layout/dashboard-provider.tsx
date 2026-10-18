@@ -1,22 +1,14 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { createContext, useCallback, useContext, useState } from "react";
 
-import {
-  createTicket as createTicketAction,
-  getTickets,
-  updateTicketStatus as updateTicketStatusAction,
-} from "@/actions/demo";
-import { DEMO_TICKETS, getTicketInsights } from "@/lib/demo-data";
+import { api } from "@/convex/_generated/api";
+import { getTicketInsights, summarizeRevenue } from "@/lib/demo-data";
 import type {
   InfoPanelState,
   RevenueRange,
+  RevenueResult,
   TicketFilter,
   TicketInsights,
   TicketRecord,
@@ -29,8 +21,11 @@ type DashboardContextValue = {
   setRange: (range: RevenueRange) => void;
   ticketFilter: TicketFilter;
   setTicketFilter: (filter: TicketFilter) => void;
+  // True until the first live result arrives from Convex.
+  loading: boolean;
   tickets: TicketRecord[];
   ticketInsights: TicketInsights;
+  getRevenue: (range: RevenueRange) => RevenueResult;
   createTicket: (input: {
     subject: string;
     team: TicketTeam;
@@ -39,6 +34,7 @@ type DashboardContextValue = {
     ticketId: number;
     status: TicketStatus;
   }) => Promise<TicketRecord>;
+  // Data is live, so this only exists for the Refresh button and Malitos's tool.
   refreshTickets: () => Promise<void>;
   panel: InfoPanelState | null;
   openPanel: (panel: InfoPanelState) => void;
@@ -54,44 +50,33 @@ export function DashboardProvider({
 }) {
   const [range, setRange] = useState<RevenueRange>("90d");
   const [ticketFilter, setTicketFilter] = useState<TicketFilter>("all");
-  const [tickets, setTickets] = useState<TicketRecord[]>(() =>
-    [...DEMO_TICKETS].sort((a, b) => b.createdAt - a.createdAt),
-  );
   const [panel, setPanel] = useState<InfoPanelState | null>(null);
-  const ticketInsights = getTicketInsights(tickets);
 
-  const refreshTickets = useCallback(async () => {
-    setTickets(await getTickets());
-  }, []);
+  // Live subscriptions: any change in Convex — from this tab, another user,
+  // or Malitos — re-renders the dashboard immediately.
+  const { isAuthenticated } = useConvexAuth();
+  const liveTickets = useQuery(api.tickets.listLive, isAuthenticated ? {} : "skip");
+  const liveRevenue = useQuery(api.revenue.listLive, isAuthenticated ? {} : "skip");
+  const createLive = useMutation(api.tickets.createLive);
+  const updateStatusLive = useMutation(api.tickets.updateStatusLive);
+
+  const tickets = liveTickets ?? EMPTY;
+  const ticketInsights = getTicketInsights(tickets);
+  const getRevenue = useCallback(
+    (selected: RevenueRange) => summarizeRevenue(liveRevenue ?? [], selected),
+    [liveRevenue],
+  );
 
   const createTicket = useCallback(
-    async (input: { subject: string; team: TicketTeam }) => {
-      const ticket = await createTicketAction(input);
-      setTickets((current) => [
-        ticket,
-        ...current.filter((item) => item.ticketId !== ticket.ticketId),
-      ]);
-      return ticket;
-    },
-    [],
+    (input: { subject: string; team: TicketTeam }) => createLive(input),
+    [createLive],
   );
-
   const updateTicketStatus = useCallback(
-    async (input: { ticketId: number; status: TicketStatus }) => {
-      const ticket = await updateTicketStatusAction(input);
-      setTickets((current) =>
-        current.map((item) =>
-          item.ticketId === ticket.ticketId ? ticket : item,
-        ),
-      );
-      return ticket;
-    },
-    [],
+    (input: { ticketId: number; status: TicketStatus }) =>
+      updateStatusLive(input),
+    [updateStatusLive],
   );
-
-  useEffect(() => {
-    getTickets().then(setTickets);
-  }, []);
+  const refreshTickets = useCallback(async () => {}, []);
 
   return (
     <DashboardContext.Provider
@@ -100,8 +85,10 @@ export function DashboardProvider({
         setRange,
         ticketFilter,
         setTicketFilter,
+        loading: liveTickets === undefined || liveRevenue === undefined,
         tickets,
         ticketInsights,
+        getRevenue,
         createTicket,
         updateTicketStatus,
         refreshTickets,
@@ -114,6 +101,8 @@ export function DashboardProvider({
     </DashboardContext.Provider>
   );
 }
+
+const EMPTY: TicketRecord[] = [];
 
 export function useDashboard() {
   const context = useContext(DashboardContext);

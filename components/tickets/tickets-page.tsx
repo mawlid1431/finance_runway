@@ -46,7 +46,7 @@ export function TicketsPage() {
       <PageHeader
         eyebrow="Customer support"
         title="Work the queue."
-        description="Filter, inspect, and update the same local demo tickets available to Malitos."
+        description="Filter, inspect, and update the same live tickets Malitos manages."
       />
 
       <section
@@ -108,8 +108,8 @@ export function TicketsPage() {
             onClick={async () => {
               await refreshTickets();
               openPanel({
-                title: "Ticket queue refreshed",
-                body: "The visible queue now matches the shared local demo store.",
+                title: "Ticket queue is live",
+                body: "Tickets update in real time from the database — new tickets from you, your team, or Malitos appear instantly.",
               });
             }}
           >

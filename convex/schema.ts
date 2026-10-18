@@ -18,4 +18,11 @@ export default defineSchema({
   })
     .index("by_ticketId", ["ticketId"])
     .index("by_createdAt", ["createdAt"]),
+
+  // One row per day. Negative amounts are refunds.
+  revenue: defineTable({
+    date: v.string(),
+    amount: v.number(),
+    refunded: v.boolean(),
+  }).index("by_date", ["date"]),
 });

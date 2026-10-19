@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,6 +14,14 @@ const mono = IBM_Plex_Mono({
   variable: "--font-mono",
   weight: ["400", "500", "600"],
 });
+
+// viewport-fit=cover lets the call controls sit above the iPhone home bar
+// (env(safe-area-inset-bottom)).
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {

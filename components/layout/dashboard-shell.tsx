@@ -7,6 +7,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { InfoPanel } from "@/components/overlays/info-panel";
 import { useDashboard } from "@/components/layout/dashboard-provider";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -15,7 +16,11 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const { panel, closePanel } = useDashboard();
-  const [agentOpen, setAgentOpen] = useState(true);
+  // Malitos starts open on desktop and minimised on phones, where it would
+  // cover the page; after that it follows what the user chooses.
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [agentChoice, setAgentOpen] = useState<boolean | null>(null);
+  const agentOpen = agentChoice ?? isDesktop;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 

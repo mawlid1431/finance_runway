@@ -32,6 +32,7 @@ vi.mock("@livekit/components-react", () => ({
     </div>
   ),
   RoomAudioRenderer: () => null,
+  StartAudio: () => null,
 }));
 
 const firstSession = {

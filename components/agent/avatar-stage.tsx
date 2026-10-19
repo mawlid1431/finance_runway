@@ -13,6 +13,7 @@ import { PhoneOff } from "lucide-react";
 import Image from "next/image";
 
 import { MALITOS_IMAGE, SYNTHESIA_AVATAR_IDENTITY } from "@/lib/avatar";
+import { useCanShareScreen } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 // The Synthesia avatar is a regular LiveKit participant publishing a camera track.
@@ -78,14 +79,17 @@ export function AvatarStage() {
 }
 
 const controlClass =
-  "grid size-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-white/80 transition hover:bg-white/15 hover:text-white data-[lk-enabled=false]:text-white/40 [&_svg]:size-4";
+  "grid size-11 place-items-center rounded-full md:size-10 border border-white/10 bg-white/[0.06] text-white/80 transition hover:bg-white/15 hover:text-white data-[lk-enabled=false]:text-white/40 [&_svg]:size-4";
 
 export function CallControls() {
+  const canShareScreen = useCanShareScreen();
   return (
-    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent px-3 pb-4 pt-8">
+    <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-3 bg-gradient-to-t from-black/70 to-transparent px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-8 md:gap-2">
       <TrackToggle source={Track.Source.Microphone} className={controlClass} aria-label="Toggle microphone" />
       <TrackToggle source={Track.Source.Camera} className={controlClass} aria-label="Toggle camera" />
-      <TrackToggle source={Track.Source.ScreenShare} className={controlClass} aria-label="Share screen" />
+      {canShareScreen ? (
+        <TrackToggle source={Track.Source.ScreenShare} className={controlClass} aria-label="Share screen" />
+      ) : null}
       <DisconnectButton
         className={cn(controlClass, "border-transparent bg-[#e5484d] text-white hover:bg-[#d13438]")}
         aria-label="End call"

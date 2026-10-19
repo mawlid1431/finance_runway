@@ -1,6 +1,10 @@
 "use client";
 
-import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  StartAudio,
+} from "@livekit/components-react";
 import { ChevronLeft, ChevronRight, Headphones } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -70,13 +74,17 @@ export function AgentCard({
         id="nova-agent"
         data-avatar-target="nova-agent"
         className={cn(
-          "fixed right-3 z-50 w-[268px] overflow-hidden rounded-2xl border border-white/10 bg-[#101514] text-white shadow-[0_20px_80px_rgba(4,8,7,0.45)] transition-all duration-300 ease-out motion-reduce:transition-none",
+          "fixed z-50 overflow-hidden border border-white/10 bg-[#101514] text-white shadow-[0_20px_80px_rgba(4,8,7,0.45)] transition-all duration-300 ease-out motion-reduce:transition-none",
+          // Desktop: a side card under the top bar.
+          "md:right-3 md:top-[68px] md:w-[268px] md:rounded-2xl",
+          session ? "md:bottom-3" : "",
+          // Phone: a bottom sheet, and full screen during a call.
           session
-            ? "bottom-3 top-[68px]"
-            : "top-[68px]",
+            ? "max-md:inset-0 max-md:h-dvh max-md:rounded-none max-md:border-0"
+            : "max-md:inset-x-3 max-md:bottom-[calc(0.75rem+env(safe-area-inset-bottom))] max-md:rounded-2xl",
           open
-            ? "translate-x-0 opacity-100"
-            : "pointer-events-none translate-x-4 opacity-0",
+            ? "translate-x-0 translate-y-0 opacity-100"
+            : "pointer-events-none opacity-0 md:translate-x-4 max-md:translate-y-4",
         )}
         aria-label="Malitos AI assistant"
         aria-hidden={!open}
@@ -117,9 +125,27 @@ export function AgentCard({
                 showCallError(callError);
                 endCall(session.sessionId);
               }}
+              onMediaDeviceFailure={() =>
+                setError(
+                  "Malitos can't hear you. Allow microphone access for this site in your browser settings, then tap the mic button.",
+                )
+              }
             >
               <AvatarStage />
               <RoomAudioRenderer />
+              {/* Phones block sound until a tap; this button only shows then. */}
+              <StartAudio
+                label="Tap to hear Malitos"
+                className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[#1a0a00] shadow-lg"
+              />
+              {error ? (
+                <p
+                  role="alert"
+                  className="absolute inset-x-3 top-3 z-10 rounded-xl bg-black/75 px-3 py-2 text-center text-[0.72rem] leading-snug text-[#ff9b90]"
+                >
+                  {error}
+                </p>
+              ) : null}
               <CallControls />
               <ClientToolHandlers />
             </LiveKitRoom>
@@ -186,7 +212,7 @@ export function AgentCard({
         data-avatar-target="nova-widget-open"
         type="button"
         className={cn(
-          "fixed bottom-5 right-5 z-50 flex h-14 items-center gap-2.5 rounded-full border border-white/10 bg-[#101514] px-4 text-white shadow-[0_18px_60px_rgba(4,8,7,0.34)] transition duration-300 ease-out motion-reduce:transition-none",
+          "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] right-5 z-50 flex h-14 items-center gap-2.5 rounded-full border border-white/10 bg-[#101514] px-4 text-white shadow-[0_18px_60px_rgba(4,8,7,0.34)] transition duration-300 ease-out motion-reduce:transition-none",
           open
             ? "pointer-events-none translate-y-2 scale-95 opacity-0"
             : "translate-y-0 scale-100 opacity-100",

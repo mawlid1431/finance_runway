@@ -2,6 +2,8 @@ export type RevenueRange = "7d" | "30d" | "90d";
 export type TicketFilter = "all" | "open" | "billing";
 export type TicketStatus = "open" | "closed";
 export type TicketTeam = "Billing" | "Support" | "Product";
+export type BookingStatus = "requested" | "confirmed" | "cancelled";
+export type BookingFilter = "all" | "requested" | "confirmed";
 
 export interface RevenuePoint {
   date: string;
@@ -22,6 +24,25 @@ export interface RevenueResult {
   refundCount: number;
   dip: RevenuePoint | null;
   series: RevenuePoint[];
+}
+
+export interface BookingRecord {
+  bookingId: number;
+  name: string;
+  contact: string;
+  date: string;
+  time: string;
+  reason: string;
+  status: BookingStatus;
+  createdAt: number;
+}
+
+export interface BookingInput {
+  name: string;
+  contact: string;
+  date: string;
+  time: string;
+  reason: string;
 }
 
 export interface TicketRecord {

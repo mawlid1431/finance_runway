@@ -161,6 +161,11 @@ class Malitos(Agent):
         """Reload the visible ticket queue right after create_ticket or update_ticket_status succeeds."""
         return await self._client("refresh_tickets")
 
+    @function_tool
+    async def refresh_bookings(self) -> str:
+        """Reload the visible bookings list right after create_booking or update_booking_status succeeds."""
+        return await self._client("refresh_bookings")
+
     # ── server tools ───────────────────────────────────────────────────────
 
     @function_tool
@@ -203,6 +208,35 @@ class Malitos(Agent):
         """Close or reopen a ticket. Only when the user explicitly asks. Afterwards speak the result and call refresh_tickets."""
         return await self._server(
             "update_ticket_status", {"ticketId": ticket_id, "status": status}
+        )
+
+    @function_tool
+    async def get_booking(self, booking_id: TicketId) -> dict:
+        """Look up one appointment booking by number. Returns booking as null when no match exists."""
+        return await self._server("get_booking", {"bookingId": booking_id})
+
+    @function_tool
+    async def create_booking(
+        self,
+        name: Annotated[str, Field(description="Person the appointment is for, at most 80 characters.")],
+        contact: Annotated[str, Field(description="Phone number or email address.")],
+        date: Annotated[str, Field(description="Appointment date as YYYY-MM-DD.")],
+        time: Annotated[str, Field(description="Appointment time as HH:MM in 24-hour form.")],
+        reason: Annotated[str, Field(description="Why they are booking, at most 240 characters.")],
+    ) -> dict:
+        """Save an appointment booking. Only after the user has given name, contact, date, time, and reason. Afterwards speak the result and call refresh_bookings."""
+        return await self._server(
+            "create_booking",
+            {"name": name, "contact": contact, "date": date, "time": time, "reason": reason},
+        )
+
+    @function_tool
+    async def update_booking_status(
+        self, booking_id: TicketId, status: Literal["requested", "confirmed", "cancelled"]
+    ) -> dict:
+        """Confirm or cancel a booking. Only when the user explicitly asks. Afterwards speak the result and call refresh_bookings."""
+        return await self._server(
+            "update_booking_status", {"bookingId": booking_id, "status": status}
         )
 
 

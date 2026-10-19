@@ -1,5 +1,9 @@
+import { normalizeBookingInput } from "@/lib/booking";
 import { DEMO_TICKETS, getTicketInsights } from "@/lib/demo-data";
 import type {
+  BookingInput,
+  BookingRecord,
+  BookingStatus,
   TicketInsights,
   TicketRecord,
   TicketStatus,
@@ -8,6 +12,7 @@ import type {
 
 type DemoStore = {
   tickets: TicketRecord[];
+  bookings: BookingRecord[];
 };
 
 const globalDemoStore = globalThis as typeof globalThis & {
@@ -21,7 +26,9 @@ function copyTicket(ticket: TicketRecord): TicketRecord {
 function getStore() {
   globalDemoStore.fintechFinanceDemoStore ??= {
     tickets: DEMO_TICKETS.map(copyTicket),
+    bookings: [],
   };
+  globalDemoStore.fintechFinanceDemoStore.bookings ??= [];
 
   return globalDemoStore.fintechFinanceDemoStore;
 }
@@ -90,8 +97,48 @@ export function getDemoTicketInsights(): TicketInsights {
   return getTicketInsights(listDemoTickets());
 }
 
+export function listDemoBookings(limit = 50): BookingRecord[] {
+  return [...getStore().bookings]
+    .sort((a, b) => b.createdAt - a.createdAt || b.bookingId - a.bookingId)
+    .slice(0, limit)
+    .map((booking) => ({ ...booking }));
+}
+
+export function getDemoBooking(bookingId: number): BookingRecord | null {
+  const booking = getStore().bookings.find((candidate) => candidate.bookingId === bookingId);
+  return booking ? { ...booking } : null;
+}
+
+export function createDemoBooking(input: BookingInput): BookingRecord {
+  const normalized = normalizeBookingInput(input);
+  const store = getStore();
+  const booking: BookingRecord = {
+    bookingId: Math.max(1_000, ...store.bookings.map((existing) => existing.bookingId)) + 1,
+    ...normalized,
+    status: "requested",
+    createdAt: Date.now(),
+  };
+  store.bookings.push(booking);
+  return { ...booking };
+}
+
+export function updateDemoBookingStatus(input: {
+  bookingId: number;
+  status: BookingStatus;
+}): BookingRecord {
+  const booking = getStore().bookings.find(
+    (candidate) => candidate.bookingId === input.bookingId,
+  );
+  if (!booking) {
+    throw new Error(`Booking #${input.bookingId} was not found.`);
+  }
+  booking.status = input.status;
+  return { ...booking };
+}
+
 export function resetDemoTickets() {
   globalDemoStore.fintechFinanceDemoStore = {
     tickets: DEMO_TICKETS.map(copyTicket),
+    bookings: [],
   };
 }

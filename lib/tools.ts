@@ -20,6 +20,7 @@ export const clientToolSchemas = {
     body: z.string().trim().min(1).max(1200),
   }),
   refresh_tickets: z.object({}),
+  refresh_bookings: z.object({}),
 } as const;
 
 export type ClientToolName = keyof typeof clientToolSchemas;
@@ -35,6 +36,9 @@ export const SERVER_TOOL_NAMES = [
   "get_ticket",
   "create_ticket",
   "update_ticket_status",
+  "get_booking",
+  "create_booking",
+  "update_booking_status",
 ] as const;
 
 export function parseClientToolArgs<T extends ClientToolName>(

@@ -11,7 +11,7 @@ This guide walks you through everything needed to clone this repo, configure all
 1. [Prerequisites](#1-prerequisites)
 2. [Clone & Install](#2-clone--install)
 3. [Clerk Authentication Setup](#3-clerk-authentication-setup)
-4. [Runway Character Setup](#4-runway-character-setup)
+4. [Synthesia and LiveKit](#4-synthesia-and-livekit)
 5. [Environment Variables](#5-environment-variables)
 6. [Run Locally](#6-run-locally)
 7. [Project Structure](#7-project-structure)
@@ -104,61 +104,44 @@ In your Clerk dashboard → **Paths**, verify or set:
 
 ---
 
-## 4. Runway Character Setup
+## 4. Synthesia and LiveKit
 
-Runway powers the AI video avatar (Malitos) that can navigate the dashboard, explain data, and manage tickets.
+Malitos is a second AI on top of the dashboard. Synthesia renders the video avatar. LiveKit carries the call (microphone, screen share, and the commands that move the page). Speech and the language model run through LiveKit as well.
 
-### 4.1 Create a Runway account
+The same Synthesia account and the same LiveKit project are also used for the other AI, **Skit**. This repository's worker is Malitos (`LIVEKIT_AGENT_NAME`, default `malitos`). Skit is the other agent on those accounts, not a second copy of this dashboard.
 
-Go to [https://runwayml.com](https://runwayml.com) and sign up.
+### 4.1 Synthesia
 
-For Characters (avatar API) access, visit the developer console:
-- **Dev console:** [https://dev.runwayml.com](https://dev.runwayml.com)
-- **API reference:** [https://docs.dev.runwayml.com](https://docs.dev.runwayml.com)
-- **Characters docs:** [https://docs.dev.runwayml.com/characters/overview/](https://docs.dev.runwayml.com/characters/overview/)
+Console: [https://app.synthesia.io](https://app.synthesia.io)
 
-### 4.2 Get your API key
+1. Open the Synthesia app and go to developer settings for **Interactive Avatars**.
+2. Create an API key scoped to Interactive Avatars.
+3. Copy the interactive avatar id for Malitos.
 
-1. Log in to [https://dev.runwayml.com](https://dev.runwayml.com)
-2. Go to **API Keys** → **Create API key**
-3. Copy the key — it starts with `key_`
+In `.env`:
 
-This becomes your `RUNWAYML_API_SECRET` in `.env`.
+| Key | Where it comes from |
+| --- | --- |
+| `SYNTHESIA_API_KEY` | Synthesia API key. Server only. A local alias `syntha_API` in some notes points at the same app: [https://app.synthesia.io](https://app.synthesia.io). |
+| `SYNTHESIA_AVATAR_ID` | Interactive avatar id. Optional. The worker has a default avatar when this is unset. |
 
-### 4.3 Create your Character (Malitos)
+The avatar joins the call as the participant `synthesia-avatar-agent`.
 
-1. In the dev console, navigate to **Characters**
-2. Click **Create character**
-3. Set the character name to **Malitos**
-4. Upload a profile image if desired
-5. After creation, copy the **Character ID** (a UUID like `4a9864c9-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+### 4.2 LiveKit
 
-This becomes your `NEXT_PUBLIC_RUNWAY_CHARACTER_ID` in `.env`.
+In the LiveKit Cloud dashboard, open the project, then **Settings → Keys**. Copy:
 
-### 4.4 Character description (recommended)
+| Key | Where it comes from |
+| --- | --- |
+| `LIVEKIT_URL` | Project WebSocket URL (`wss://…livekit.cloud`) |
+| `LIVEKIT_API_KEY` | API key on that settings page |
+| `LIVEKIT_API_SECRET` | API secret on that settings page |
 
-When setting up Malitos, use this description in the Runway console:
+LiveKit also bills speech-to-text, the language model, and the voice (LiveKit Inference). Do not commit these values.
 
-```
-Malitos is an AI Software Engineer, Product Architect, and Technology Consultant.
-Malitos helps founders, startups, and developers build modern, scalable digital
-products. Knowledgeable in AI, web development, mobile apps, SaaS platforms,
-fintech, CRM systems, cloud technologies, APIs, automation, and software
-architecture. Responses are clear, professional, practical, and easy to understand.
-Always focused on solving real business problems, creating scalable software,
-improving user experience, and delivering long-term value.
-```
+### 4.3 What Malitos says
 
-**Start script** (what Malitos says when a call begins):
-
-```
-Hello, I'm Malitos, your AI Software Engineer and Technology Consultant.
-I can help you with software development, AI solutions, web and mobile applications,
-SaaS platforms, system architecture, APIs, cloud deployment, debugging, and product
-strategy. Whether you're starting a new project, improving an existing system, or
-solving a technical challenge, I'll provide practical guidance and reliable solutions.
-Tell me about your project or idea, and we'll build the best solution together.
-```
+The greeting and the tool rules live in `agent/instructions.py`, not in the Synthesia console. On each call Malitos introduces itself as the Fintech Finance consultant, says it can explore the dashboard, explain insights, and help with tickets, and mentions that sharing the screen lets it see what you see.
 
 ---
 
@@ -167,9 +150,23 @@ Tell me about your project or idea, and we'll build the best solution together.
 Create a `.env` file at the project root with the following values:
 
 ```env
-# ── Runway ────────────────────────────────────────────────────────────
-RUNWAYML_API_SECRET=key_your_runway_api_key_here
-NEXT_PUBLIC_RUNWAY_CHARACTER_ID=your-character-uuid-here
+# ── Synthesia (https://app.synthesia.io) ──────────────────────────────
+SYNTHESIA_API_KEY=
+# SYNTHESIA_AVATAR_ID=
+
+# ── LiveKit (Cloud dashboard → Settings → Keys)
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=
+LIVEKIT_API_SECRET=
+
+# ── Malitos worker ────────────────────────────────────────────────────
+AGENT_SHARED_SECRET=
+APP_URL=http://localhost:3000
+
+# ── Convex ────────────────────────────────────────────────────────────
+CONVEX_URL=https://your-deployment.convex.cloud
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+CONVEX_SERVER_SECRET=
 
 # ── Clerk ─────────────────────────────────────────────────────────────
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key
@@ -199,7 +196,13 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+In another shell, from `agent/`:
+
+```bash
+python agent.py dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The page alone is the dashboard. Malitos joins only when this worker is running and LiveKit can reach it.
 
 Unauthenticated visitors are automatically redirected to `/sign-in`. After signing in with Clerk, they land on the dashboard.
 
@@ -213,7 +216,7 @@ The project is configured with `overrides` in `package.json` to keep all transit
 
 ---
 
-## 7. Project Structure
+## 9. Project Structure
 
 ```text
 app/
@@ -224,8 +227,10 @@ app/
   layout.tsx            # Root layout with ClerkProvider + ThemeProvider
 
 actions/
-  avatar.ts             # Runway session creation and RPC handler
-  demo.ts               # Ticket CRUD server actions
+  avatar.ts             # LiveKit room and Malitos dispatch
+agent/
+  agent.py              # Malitos worker (Synthesia avatar, speech, tools)
+  instructions.py       # Greeting and tool rules
 
 components/
   agent/                # Malitos AI panel (agent-card, client-tool-handlers)
@@ -274,7 +279,7 @@ bun audit        # Check for dependency vulnerabilities
 
 ### Malitos (AI avatar)
 
-Malitos is a Runway video character that lives in a collapsible side panel. During a call, Malitos can:
+Malitos is a Synthesia video avatar on a LiveKit call, in a collapsible side panel. Skit is the other assistant on those same Synthesia and LiveKit services. This repository runs Malitos. During a call, Malitos can:
 
 - Navigate between pages
 - Scroll to and highlight any UI element

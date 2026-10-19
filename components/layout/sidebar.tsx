@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  CalendarCheck,
   ChartNoAxesCombined,
   CircleHelp,
   PanelLeftClose,
@@ -22,6 +23,7 @@ const items = [
   { href: "/", label: "Overview", icon: BarChart3, target: "overview" },
   { href: "/revenue", label: "Revenue", icon: ChartNoAxesCombined, target: "revenue" },
   { href: "/tickets", label: "Tickets", icon: TicketCheck, target: "tickets" },
+  { href: "/bookings", label: "Bookings", icon: CalendarCheck, target: "bookings" },
   { href: "/settings", label: "Settings", icon: Settings2, target: "settings" },
 ];
 

@@ -133,6 +133,23 @@ export function ToolExamples({
                 refresh_tickets
               </span>
             </Link>
+
+            <Link
+              id="example-refresh-bookings"
+              data-avatar-target="example-refresh-bookings"
+              href="/bookings#bookings-refresh"
+              className="group rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 transition hover:-translate-y-0.5 hover:border-[var(--line-strong)]"
+            >
+              <span className="flex items-start justify-between gap-3">
+                <span className="text-sm font-semibold">
+                  “Refresh the bookings.”
+                </span>
+                <ArrowUpRight className="size-4 shrink-0 text-[var(--muted)] transition group-hover:text-[var(--ink)]" />
+              </span>
+              <span className="mt-3 block font-mono text-[0.58rem] uppercase tracking-[0.12em] text-[var(--positive)]">
+                refresh_bookings
+              </span>
+            </Link>
           </div>
         </section>
 
@@ -262,6 +279,23 @@ export function ToolExamples({
               </span>
               <span className="mt-3 block font-mono text-[0.58rem] uppercase tracking-[0.12em] text-[var(--accent)]">
                 update_ticket_status
+              </span>
+            </Link>
+
+            <Link
+              id="example-create-booking"
+              data-avatar-target="example-create-booking"
+              href="/bookings#new-booking"
+              className="group rounded-xl border border-[var(--paper)]/15 p-4 transition hover:-translate-y-0.5 hover:bg-[var(--paper)]/10"
+            >
+              <span className="flex items-start justify-between gap-3">
+                <span className="text-sm font-semibold">
+                  “I need a booking.”
+                </span>
+                <ArrowUpRight className="size-4 shrink-0 opacity-45 transition group-hover:opacity-100" />
+              </span>
+              <span className="mt-3 block font-mono text-[0.58rem] uppercase tracking-[0.12em] text-[var(--accent)]">
+                create_booking
               </span>
             </Link>
           </div>

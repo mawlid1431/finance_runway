@@ -11,7 +11,7 @@ import {
 
 describe("Malitos tool contract", () => {
   it("exposes all 13 tools", () => {
-    expect(CLIENT_TOOL_NAMES.length + SERVER_TOOL_NAMES.length).toBe(13);
+    expect(CLIENT_TOOL_NAMES.length + SERVER_TOOL_NAMES.length).toBe(17);
     expect(Object.keys(serverTools).sort()).toEqual(
       [...SERVER_TOOL_NAMES].sort(),
     );

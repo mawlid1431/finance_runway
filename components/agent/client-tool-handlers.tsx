@@ -27,7 +27,7 @@ export function ClientToolHandlers() {
 
   useEffect(() => {
     async function run(name: ClientToolName, payload: string): Promise<string> {
-      const { openPanel, refreshTickets, setRange, setTicketFilter } =
+      const { openPanel, refreshBookings, refreshTickets, setRange, setTicketFilter } =
         dashboardRef.current;
 
       switch (name) {
@@ -63,6 +63,9 @@ export function ClientToolHandlers() {
         }
         case "refresh_tickets":
           await refreshTickets();
+          return "ok";
+        case "refresh_bookings":
+          await refreshBookings();
           return "ok";
       }
     }

@@ -61,6 +61,51 @@ describe("/api/agent/[tool]", () => {
     expect(updated.status).toBe("closed");
   });
 
+  it("creates and confirms a booking", async () => {
+    const created = await (
+      await call("create_booking", {
+        name: "Amina Hassan",
+        contact: "amina@example.com",
+        date: "2026-11-02",
+        time: "14:30",
+        reason: "Review the refund dip",
+      })
+    ).json();
+    expect(created.booking).toMatchObject({
+      name: "Amina Hassan",
+      status: "requested",
+      date: "2026-11-02",
+      time: "14:30",
+    });
+
+    const updated = await (
+      await call("update_booking_status", {
+        bookingId: created.booking.bookingId,
+        status: "confirmed",
+      })
+    ).json();
+    expect(updated.status).toBe("confirmed");
+
+    const found = await (
+      await call("get_booking", { bookingId: created.booking.bookingId })
+    ).json();
+    expect(found.booking.status).toBe("confirmed");
+  });
+
+  it("rejects a booking that is missing a real contact", async () => {
+    expect(
+      (
+        await call("create_booking", {
+          name: "Amina Hassan",
+          contact: "not-a-contact",
+          date: "2026-11-02",
+          time: "14:30",
+          reason: "Review the refund dip",
+        })
+      ).status,
+    ).toBe(400);
+  });
+
   it("returns 400 for invalid arguments", async () => {
     expect(
       (await call("create_ticket", { subject: "", team: "Billing" })).status,

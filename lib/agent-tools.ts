@@ -1,6 +1,11 @@
 import { z } from "zod";
 
 import {
+  createBooking,
+  getBooking,
+  updateBookingStatus,
+} from "@/lib/booking-store";
+import {
   createTicket,
   getTicket,
   getRevenueSummary,
@@ -74,6 +79,42 @@ export const serverTools = {
     schema: z.object({ ticketId, status: z.enum(["open", "closed"]) }),
     run: async (args: { ticketId: number; status: "open" | "closed" }) => ({
       ...(await updateTicketStatus(args)),
+    }),
+  },
+  get_booking: {
+    schema: z.object({ bookingId: z.coerce.number().int().positive() }),
+    run: async (args: { bookingId: number }) => ({
+      booking: await getBooking(args.bookingId),
+    }),
+  },
+  create_booking: {
+    schema: z.object({
+      name: z.string().trim().min(1).max(80),
+      contact: z.string().trim().min(1).max(120),
+      date: z.string().trim(),
+      time: z.string().trim(),
+      reason: z.string().trim().min(1).max(240),
+    }),
+    run: async (args: {
+      name: string;
+      contact: string;
+      date: string;
+      time: string;
+      reason: string;
+    }) => ({
+      booking: await createBooking(args),
+    }),
+  },
+  update_booking_status: {
+    schema: z.object({
+      bookingId: z.coerce.number().int().positive(),
+      status: z.enum(["requested", "confirmed", "cancelled"]),
+    }),
+    run: async (args: {
+      bookingId: number;
+      status: "requested" | "confirmed" | "cancelled";
+    }) => ({
+      ...(await updateBookingStatus(args)),
     }),
   },
 } as const;

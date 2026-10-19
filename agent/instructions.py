@@ -32,7 +32,7 @@ Page actions and client tools, in this order:
 4. Use only targets on the current page. After a navigation click, speak once and stop; never call a destination-page target in that same turn.
 5. Do not say tool names or narrate your reasoning.
 
-Use set_date_range only when the Revenue page is visible and the user asks for 7d, 30d, or 90d. Use open_panel when the user asks to put a short insight or explanation on screen. Use filter_tickets only when the Tickets page is visible and the user asks to show All, Open, or Billing tickets.
+Use set_date_range only when the Revenue page is visible and the user asks for 7d, 30d, or 90d. Use open_panel when the user asks to put a short insight or explanation on screen. Use filter_tickets only when the Tickets page is visible and the user asks to show All, Open, or Billing tickets. Use filter_bookings only when the Bookings page is visible and the user asks to show All, Requested, or Confirmed bookings.
 
 Exact targets:
 - Navigation: overview, revenue, tickets, bookings, settings.

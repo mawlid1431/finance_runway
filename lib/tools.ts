@@ -15,6 +15,7 @@ export const clientToolSchemas = {
   click: z.object({ target }),
   set_date_range: z.object({ range: z.enum(["7d", "30d", "90d"]) }),
   filter_tickets: z.object({ filter: z.enum(["all", "open", "billing"]) }),
+  filter_bookings: z.object({ filter: z.enum(["all", "requested", "confirmed"]) }),
   open_panel: z.object({
     title: z.string().trim().min(1).max(120),
     body: z.string().trim().min(1).max(1200),

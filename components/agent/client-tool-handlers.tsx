@@ -27,8 +27,14 @@ export function ClientToolHandlers() {
 
   useEffect(() => {
     async function run(name: ClientToolName, payload: string): Promise<string> {
-      const { openPanel, refreshBookings, refreshTickets, setRange, setTicketFilter } =
-        dashboardRef.current;
+      const {
+        openPanel,
+        refreshBookings,
+        refreshTickets,
+        setBookingFilter,
+        setRange,
+        setTicketFilter,
+      } = dashboardRef.current;
 
       switch (name) {
         case "scroll_to": {
@@ -53,6 +59,12 @@ export function ClientToolHandlers() {
           const args = parseClientToolArgs(name, payload);
           if (!args) return invalid();
           setTicketFilter(args.filter);
+          return "ok";
+        }
+        case "filter_bookings": {
+          const args = parseClientToolArgs(name, payload);
+          if (!args) return invalid();
+          setBookingFilter(args.filter);
           return "ok";
         }
         case "open_panel": {

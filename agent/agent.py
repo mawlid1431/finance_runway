@@ -147,6 +147,15 @@ class Malitos(Agent):
         return await self._client("filter_tickets", {"filter": filter})
 
     @function_tool
+    async def filter_bookings(self, filter: Literal["all", "requested", "confirmed"]) -> str:
+        """Change the visible booking list. Only when the Bookings page is open.
+
+        Args:
+            filter: "all" for every booking, "requested" for new requests, "confirmed" for confirmed appointments.
+        """
+        return await self._client("filter_bookings", {"filter": filter})
+
+    @function_tool
     async def open_panel(self, title: str, body: str) -> str:
         """Show a short insight or explanation in the dashboard info panel.
 

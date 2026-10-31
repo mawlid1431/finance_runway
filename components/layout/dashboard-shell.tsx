@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { AgentCard } from "@/components/agent/agent-card";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";
 import { InfoPanel } from "@/components/overlays/info-panel";
 import { useDashboard } from "@/components/layout/dashboard-provider";
-import { useMediaQuery } from "@/lib/use-media-query";
+import { useMediaQuery, useStoredFlag } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 export function DashboardShell({
@@ -21,20 +22,25 @@ export function DashboardShell({
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [agentChoice, setAgentOpen] = useState<boolean | null>(null);
   const agentOpen = agentChoice ?? isDesktop;
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // The saved preference applies until the user toggles in this tab.
+  const storedCollapsed = useStoredFlag("sidebar-collapsed");
+  const [collapsedChoice, setCollapsedChoice] = useState<boolean | null>(null);
+  const sidebarCollapsed = collapsedChoice ?? storedCollapsed;
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("sidebar-collapsed");
-    if (stored === "true") setSidebarCollapsed(true);
-  }, []);
+  // Close the mobile drawer on navigation. Adjusting state while rendering
+  // avoids an extra effect pass.
+  const pathname = usePathname();
+  const [drawerPath, setDrawerPath] = useState(pathname);
+  if (pathname !== drawerPath) {
+    setDrawerPath(pathname);
+    setMobileOpen(false);
+  }
 
   function handleToggleSidebar() {
-    setSidebarCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem("sidebar-collapsed", String(next));
-      return next;
-    });
+    const next = !sidebarCollapsed;
+    localStorage.setItem("sidebar-collapsed", String(next));
+    setCollapsedChoice(next);
   }
 
   return (

@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
 import { PageHeader } from "@/components/layout/page-header";
@@ -17,12 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { MALITOS_IMAGE } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
+import { useHydrated } from "@/lib/use-media-query";
 
 export function SettingsPage() {
   const { resolvedTheme, setTheme } = useTheme();
   const { openPanel } = useDashboard();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
   const [ticketAlerts, setTicketAlerts] = useState(true);
   const [revenueAlerts, setRevenueAlerts] = useState(true);
   const [testingMic, setTestingMic] = useState(false);

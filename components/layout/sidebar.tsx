@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
 import { FintechLogoIcon } from "@/components/layout/logo";
@@ -39,10 +38,6 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
   const { openPanel } = useDashboard();
   // On mobile the drawer is always full-width — collapsed only applies on desktop
   const iconOnly = collapsed && !mobileOpen;
-
-  useEffect(() => {
-    onMobileClose();
-  }, [pathname]);
 
   return (
     <>

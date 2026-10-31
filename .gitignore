@@ -43,3 +43,6 @@ next-env.d.ts
 agent/.venv/
 __pycache__/
 .vercel
+
+# local AI assistant config
+.claude/

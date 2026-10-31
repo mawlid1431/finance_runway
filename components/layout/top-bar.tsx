@@ -4,12 +4,12 @@ import { UserButton } from "@clerk/nextjs";
 import { Bell, Menu, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
 import { useDashboard } from "@/components/layout/dashboard-provider";
 import { FintechLogoIcon } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
+import { useHydrated } from "@/lib/use-media-query";
 
 const pageNames: Record<string, string> = {
   "/": "Overview",
@@ -26,8 +26,7 @@ export function TopBar({ onMobileMenuOpen }: TopBarProps) {
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const { openPanel } = useDashboard();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useHydrated();
   const isDark = mounted && resolvedTheme === "dark";
 
   return (

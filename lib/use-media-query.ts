@@ -24,3 +24,26 @@ export function useCanShareScreen() {
     () => false,
   );
 }
+
+// True after hydration on the client, false during server rendering. Use it
+// to gate values that differ between server and client, such as the theme.
+export function useHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+// A boolean persisted in localStorage. Reads it without a setState-in-effect
+// round trip and stays in sync across tabs.
+export function useStoredFlag(key: string) {
+  return useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener("storage", onChange);
+      return () => window.removeEventListener("storage", onChange);
+    },
+    () => localStorage.getItem(key) === "true",
+    () => false,
+  );
+}
